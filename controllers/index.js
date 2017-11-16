@@ -1,0 +1,1 @@
+exports.ExampleController = require('./ExampleController');
