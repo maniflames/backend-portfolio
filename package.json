@@ -19,7 +19,8 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "hawk": "^7.0.5"
+    "hawk": "^7.0.5",
+    "mongoose": "^4.13.3"
   },
   "devDependencies": {
     "webpack": "^3.8.1"

@@ -8,5 +8,15 @@ module.exports = [
         method: 'POST',
         path: '/',
         controller: 'ExampleController.index'
+    },
+    {
+        method: 'GET',
+        path: '/lol/:id',
+        controller: 'ExampleController.index'
+    },
+    {
+        method: 'GET',
+        path: '/lol',
+        controller: 'ExampleController.index'
     }
 ];
