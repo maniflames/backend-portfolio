@@ -1,8 +1,13 @@
 const express = require('express');
 const app = express();
 const bodyparser = require('body-parser');
-const routes = require('./routes');
+const mongoose = require('mongoose');
+
+//import configurations
+const db = require('./db');
 const controllers = require('./controllers');
+const routes = require('./routes');
+
 
 app.use(bodyparser.json({type: 'application/json'}));
 app.use(bodyparser.urlencoded({extended: false}));
@@ -61,6 +66,13 @@ app.options('*', function(req, res){
     res.append('allow', allowedMethods);
     return res.send();
 })
+
+const models = require('./Models');
+
+let Project = models.Project;
+Project.find({hi: 'bye'}, function(err, project){
+    console.log('From app.js: ', project);
+});
 
 app.listen(8082, function(){
     console.log('Server running @ 8082');

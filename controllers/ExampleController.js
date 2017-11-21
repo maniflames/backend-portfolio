@@ -1,7 +1,11 @@
+const models = require('../Models');
+const Project = models.Project;
+
 module.exports = {
     index: function(req, res){
-        return res.send({"say": "Hello"});
-    },
 
-    test: {"say": "hello ish"}
+        Project.find({hi: 'bye'}, function(err, project){
+            return res.send(project);
+        });
+    }
 }
