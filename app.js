@@ -12,6 +12,7 @@ const routes = require('./routes');
 app.use(bodyparser.json({type: 'application/json'}));
 app.use(bodyparser.urlencoded({extended: false}));
 
+//NOTE: I considering moving 'automatic' routing into a seperate file and requiring it here
 routes.forEach(function(route){
     switch(route.method.toUpperCase()) {
         case 'GET':
@@ -41,12 +42,22 @@ routes.forEach(function(route){
 });
 
 
-//TODO: Right now there is a significant differance between a route that doesn't end with / and the same one that does ...
-//Make that dissapear!!!
 app.options('*', function(req, res){
     const filteredRoutes = routes.filter(function(route){
-        //TODO: analyze path and ignore params
-        if(req.originalUrl === route.path){
+
+        let testRoute = route.path;
+        if(req.originalUrl.length > 1 && req.originalUrl.slice(req.originalUrl.length - 1) === '/' ){
+            testRoute = testRoute + '/';
+        }
+
+        //TODO
+        //check if the testRoute contains a param in the route
+            //If it is the case replace it with a regular expression thay may contain anything but whitespace
+        //Compare te originalUrl and the testRoute
+        //Remove the comparison method below
+
+        if(req.originalUrl === testRoute){
+            console.log(req.originalUrl, testRoute);
             return true;
         }
 
@@ -66,13 +77,6 @@ app.options('*', function(req, res){
     res.append('allow', allowedMethods);
     return res.send();
 })
-
-const models = require('./Models');
-
-let Project = models.Project;
-Project.find({hi: 'bye'}, function(err, project){
-    console.log('From app.js: ', project);
-});
 
 app.listen(8082, function(){
     console.log('Server running @ 8082');
