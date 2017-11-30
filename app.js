@@ -16,22 +16,22 @@ app.use(bodyparser.urlencoded({extended: false}));
 routes.forEach(function(route){
     switch(route.method.toUpperCase()) {
         case 'GET':
-            app.get(route.path, function(req, res){
+            app.get(route.path, (req, res) => {
                 eval('controllers.' + route.controller)(req, res);
             });
             break;
         case 'POST':
-            app.post(route.path, function(req, res){
+            app.post(route.path, (req, res) => {
                 eval('controllers.' + route.controller)(req, res);
             });
             break;
         case 'PUT':
-            app.put(route.path, function(req, res){
+            app.put(route.path, (req, res) => {
                 eval('controllers.' + route.controller)(req, res);
             });
             break;
         case 'DELETE':
-            app.delete(route.path, function(req, res){
+            app.delete(route.path, (req, res) => {
                 eval('controllers.' + route.controller)(req, res);
             });
             break;
@@ -42,22 +42,22 @@ routes.forEach(function(route){
 });
 
 
-app.options('*', function(req, res){
-    const filteredRoutes = routes.filter(function(route){
+app.options('*', (req, res) => {
+    const filteredRoutes = routes.filter((route) => {
 
         let testRoute = route.path;
         if(req.originalUrl.length > 1 && req.originalUrl.slice(req.originalUrl.length - 1) === '/' ){
             testRoute = testRoute + '/';
         }
 
-        //TODO
+        //TODO:
         //check if the testRoute contains a param in the route
             //If it is the case replace it with a regular expression thay may contain anything but whitespace
         //Compare te originalUrl and the testRoute
         //Remove the comparison method below
 
+
         if(req.originalUrl === testRoute){
-            console.log(req.originalUrl, testRoute);
             return true;
         }
 
@@ -65,19 +65,18 @@ app.options('*', function(req, res){
     })
 
     if(filteredRoutes.length === 0){
-        res.append('allow', 'OPTIONS');
+        res.append('allow', 'OPTIONS,HEAD');
         return res.send();
     }
 
-    const allowedMethods = filteredRoutes.map(function(route){
-        return route.method;
-    })
+    const allowedMethods = filteredRoutes.map(route => route.method);
 
+    allowedMethods.push('HEAD');
     allowedMethods.push('OPTIONS');
     res.append('allow', allowedMethods);
     return res.send();
 })
 
-app.listen(8082, function(){
-    console.log('Server running @ 8082');
+let listener = app.listen(process.env.PORT || 8082, function(){
+    console.log('Server running @ ' + listener.address().port);
 })

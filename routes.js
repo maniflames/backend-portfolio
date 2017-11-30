@@ -1,22 +1,28 @@
+
 module.exports = [
     {
         method: 'GET',
-        path: '/',
-        controller: 'ExampleController.index'
+        path: '/projects',
+        controller: 'ProjectController.list'
     },
     {
         method: 'POST',
-        path: '/',
-        controller: 'ExampleController.index'
+        path: '/projects',
+        controller: 'ProjectController.create'
     },
     {
         method: 'GET',
-        path: '/lol/:id',
-        controller: 'ExampleController.index'
+        path: '/project/:id',
+        controller: 'ProjectController.find'
     },
     {
-        method: 'GET',
-        path: '/lol',
-        controller: 'ExampleController.index'
-    }
+        method: 'PUT',
+        path: '/project/:id',
+        controller: 'ProjectController.update'
+    },
+    {
+        method: 'DELETE',
+        path: '/project/:id',
+        controller: 'ProjectController.delete'
+    },
 ];
