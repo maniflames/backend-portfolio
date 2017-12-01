@@ -37,7 +37,7 @@ module.exports = {
     },
 
     update: (req, res) => {
-        
+
         let valid = true;
         for(let field in ProjectSchema){
             if(ProjectSchema[field].required){

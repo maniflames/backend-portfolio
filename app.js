@@ -13,34 +13,36 @@ app.use(bodyparser.json({type: 'application/json'}));
 app.use(bodyparser.urlencoded({extended: false}));
 
 //NOTE: I considering moving 'automatic' routing into a seperate file and requiring it here
+//NOTE: Handling options should be a seperate class / module that is called inside of te automatic routing method 'OPTIONS'
 routes.forEach(function(route){
-    switch(route.method.toUpperCase()) {
-        case 'GET':
+    const methods = {
+        'GET': function () {
             app.get(route.path, (req, res) => {
-                eval('controllers.' + route.controller)(req, res);
+                return eval('controllers.' + route.controller)(req, res);
             });
-            break;
-        case 'POST':
-            app.post(route.path, (req, res) => {
-                eval('controllers.' + route.controller)(req, res);
-            });
-            break;
-        case 'PUT':
-            app.put(route.path, (req, res) => {
-                eval('controllers.' + route.controller)(req, res);
-            });
-            break;
-        case 'DELETE':
-            app.delete(route.path, (req, res) => {
-                eval('controllers.' + route.controller)(req, res);
-            });
-            break;
-        default:
-            console.error('Something went wrong');
-            break;
-    }
-});
+        },
 
+        'POST': function () {
+            app.post(route.path, (req, res) => {
+                return eval('controllers.' + route.controller)(req, res);
+            });
+        },
+
+        'PUT': function () {
+            app.put(route.path, (req, res) => {
+                return eval('controllers.' + route.controller)(req, res);
+            });
+        },
+
+        'DELETE': function () {
+            app.delete(route.path, (req, res) => {
+                return eval('controllers.' + route.controller)(req, res);
+            });
+        }
+    };
+
+    methods[route.method]();
+})
 
 app.options('*', (req, res) => {
     const filteredRoutes = routes.filter((route) => {
