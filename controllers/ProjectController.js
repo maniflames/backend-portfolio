@@ -6,17 +6,48 @@ const ProjectSchema = Project.schema.tree;
 
 module.exports = {
     list: (req, res) => {
-        Project.find({}, (err, projects) => {
+        let response = {};
+        const start = parseInt(req.query.start) - 1; // transforming start because mongoose starts at 0
+        const limit = parseInt(req.query.limit);
+
+        Project.count({}, (err, count) => {
             if(err){
                 console.error(err);
                 return res.status(500).send({error: err});
             }
 
-            return res.send(projects);
-        });
+            //TODO: check if start is out of bounds
+
+            Project.find({}).skip(start).limit(limit).exec((err, projects) => {
+                if(err){
+                    console.error(err);
+                    return res.status(500).send({error: err});
+                }
+
+                //TODO: include self & collection links for each project
+
+                response.items = projects;
+                response._links = {
+                    _self: {
+                        href: req.url //TODO: print full url
+                    }
+                }
+                response.pagination = {
+                    currentPage: Math.ceil((start + 1) / limit), //correct start with start + 1
+                    currentItems: limit || count,
+                    totalPages: Math.ceil(count / limit) || 1,
+                    totalItems: count
+                    //TODO: include links
+                }
+
+                return res.send(response);
+
+            })
+        })
     },
 
     find:(req, res) => {
+
         Project.find({_id: req.params.id}, (err, project) => {
             if(err){
                 console.error(err);
