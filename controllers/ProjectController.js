@@ -52,7 +52,6 @@ module.exports = {
     },
 
     find:(req, res) => {
-
         Project.find({_id: req.params.id}, (err, project) => {
             if(err){
                 console.error(err);
@@ -66,14 +65,13 @@ module.exports = {
         Project.create(req.body, (err, newProject) => {
             if(err){
                 console.error(err);
-                return res.status(500).send(err);
+                return res.status(400).send(err);
             }
-            return res.send(newProject);
+            return res.status(201).send(newProject);
         });
     },
 
     update: (req, res) => {
-
         let valid = true;
         for(let field in ProjectSchema){
             if(ProjectSchema[field].required){
@@ -121,11 +119,7 @@ module.exports = {
             }
 
             Project.remove(req.params.id, (err) => {
-                if(err){
-                    return res.status(500).send(err);
-                }
-
-                return res.status(204).send();
+                return err ? res.status(500).send(err) : res.status(204).send();
             })
         });
 

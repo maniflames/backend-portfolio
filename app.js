@@ -58,16 +58,18 @@ app.options('*', (req, res) => {
         //Compare te originalUrl and the testRoute
         //Remove the comparison method below
 
+        //TODO:
+        //Ignore query in route
 
-        if(req.originalUrl === testRoute){
-            return true;
-        }
+        return req.originalUrl === testRoute ? true : false;
+    });
 
-        return false;
-    })
+    res.append('Access-Control-Allow-Origin' , 'http://checker.basboot.nl/');
+    res.append('Access-Control-Allow-Headers', ['Accept', 'Content-Type']);
 
     if(filteredRoutes.length === 0){
-        res.append('allow', 'OPTIONS,HEAD');
+        res.append('Allow', 'OPTIONS,HEAD');
+        res.append('Access-Control-Allow-Methods', 'OPTIONS,HEAD');
         return res.send();
     }
 
@@ -75,7 +77,8 @@ app.options('*', (req, res) => {
 
     allowedMethods.push('HEAD');
     allowedMethods.push('OPTIONS');
-    res.append('allow', allowedMethods);
+    res.append('Allow', allowedMethods);
+    res.append('Access-Control-Allow-Methods', allowedMethods);
     return res.send();
 })
 
