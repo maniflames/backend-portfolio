@@ -12,17 +12,17 @@ module.exports = [
     },
     {
         method: 'GET',
-        path: '/project/:id',
+        path: '/projects/:id',
         controller: 'ProjectController.find'
     },
     {
         method: 'PUT',
-        path: '/project/:id',
+        path: '/projects/:id',
         controller: 'ProjectController.update'
     },
     {
         method: 'DELETE',
-        path: '/project/:id',
+        path: '/projects/:id',
         controller: 'ProjectController.delete'
     },
 ];

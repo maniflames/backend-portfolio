@@ -20,7 +20,10 @@ let schema = new mongoose.Schema({
         type: 'string',
         required: true
     },
-    links: { self: { href: 'string' }, collection: { href: 'string' }}
+    _links: {
+        self: { href: 'string' },
+        collection: { href: 'string' }
+    }
 });
 
 let Project = mongoose.model('Project', schema);

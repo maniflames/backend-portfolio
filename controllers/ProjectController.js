@@ -3,6 +3,7 @@
 const models = require('../Models');
 const Project = models.Project;
 const ProjectSchema = Project.schema.tree;
+const pagination = require('../pagination');
 
 module.exports = {
     list: (req, res) => {
@@ -24,22 +25,26 @@ module.exports = {
                     return res.status(500).send({error: err});
                 }
 
-                //TODO: include self & collection links for each project
+                let result = projects.map(function (project){
+                     project._links = {
+                        self: {
+                            href: req.protocol + '://' + req.get('host') + req.path + project.id
+                        },
+                        collection: {
+                            href: req.protocol + '://' + req.get('host') + req.path
+                        }
+                    };
 
-                response.items = projects;
+                    return project;
+                });
+
+                response.items = result;
                 response._links = {
-                    _self: {
-                        href: req.url //TODO: print full url
+                    self: {
+                        href: req.protocol + '://' + req.get('host') + req.path
                     }
                 }
-                response.pagination = {
-                    currentPage: Math.ceil((start + 1) / limit), //correct start with start + 1
-                    currentItems: limit || count,
-                    totalPages: Math.ceil(count / limit) || 1,
-                    totalItems: count
-                    //TODO: include links
-                }
-
+                response.pagination = pagination.getPagination(count, start, limit, req.protocol + '://' + req.get('host') + req.path);
                 return res.send(response);
 
             })
