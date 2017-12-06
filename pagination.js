@@ -1,7 +1,9 @@
 //NOTE: if I ever have some time left some of these can be transformed into recursive functions
 module.exports = {
         currentItems: (count, start, limit) => {
-            // return !limit ? count : !start ? (start = 1)
+            const currentPage = module.exports.currentPage(start, limit);
+            const lastPage = module.exports.numberOfPages(count, limit);
+            return !limit ? count : currentPage === lastPage ? count % limit == 0 ? limit : limit;
         },
 
         numberOfPages: (count, limit) => {
@@ -44,7 +46,7 @@ module.exports = {
         getPagination: (count, start, limit, collectionHref) => {
             return {
                 currentPage: module.exports.currentPage(start, limit), //start is corrected within pagination function by start + 1
-                currentItems: limit || count, //WARNING: THIS IS INCORRECT!!!
+                currentItems: module.exports.currentItems(count, start, limit),
                 totalPages: module.exports.numberOfPages(count, limit),
                 totalItems: count,
                 _links: {

@@ -11,6 +11,16 @@ const routes = require('./routes');
 
 app.use(bodyparser.json({type: 'application/json'}));
 app.use(bodyparser.urlencoded({extended: false}));
+//NOTE: Funnction below should be a seperate function in a routing module
+app.use((req, res, next) => {
+     req.get('Accept').indexOf('application/json') < 0 ? res.status(400).send({error: 'Accept header not supported'}) : next();
+});
+app.use((req, res, next) => {
+    res.append('Access-Control-Allow-Origin' , 'http://checker.basboot.nl/');
+    res.append('Access-Control-Allow-Headers', ['Accept', 'Content-Type']);
+    res.append('Content-Type', 'application/json');
+    next();
+})
 
 //NOTE: I considering moving 'automatic' routing into a seperate file and requiring it here
 //NOTE: Handling options should be a seperate class / module that is called inside of te automatic routing method 'OPTIONS'
@@ -63,9 +73,6 @@ app.options('*', (req, res) => {
 
         return req.originalUrl === testRoute ? true : false;
     });
-
-    res.append('Access-Control-Allow-Origin' , 'http://checker.basboot.nl/');
-    res.append('Access-Control-Allow-Headers', ['Accept', 'Content-Type']);
 
     if(filteredRoutes.length === 0){
         res.append('Allow', 'OPTIONS,HEAD');

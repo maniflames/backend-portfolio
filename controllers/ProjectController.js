@@ -1,5 +1,6 @@
 //NOTE: Controllers aren't lean I should probably move some logic to models or helpers
 //NOTE: Creating an errorhandler would be effcient
+//NOTE: Creating a links module would be more effcient
 const models = require('../Models');
 const Project = models.Project;
 const ProjectSchema = Project.schema.tree;
@@ -19,7 +20,7 @@ module.exports = {
 
             //TODO: check if start is out of bounds
 
-            Project.find({}).skip(start).limit(limit).exec((err, projects) => {
+            Project.find({}).select('_id name description img_url _links').skip(start).limit(limit).exec((err, projects) => {
                 if(err){
                     console.error(err);
                     return res.status(500).send({error: err});
@@ -52,11 +53,27 @@ module.exports = {
     },
 
     find:(req, res) => {
-        Project.find({_id: req.params.id}, (err, project) => {
+        Project.findOne({_id: req.params.id}, (err, project) => {
             if(err){
                 console.error(err);
                 return res.status(500).send({error: err});
             }
+
+            if(!project){
+                return res.status(404).send({error: 'project not found'});
+            }
+
+            const path = req.path;
+
+            project._links = {
+               self: {
+                   href: req.protocol + '://' + req.get('host') + path
+               },
+               collection: {
+                   href: req.protocol + '://' + req.get('host') + path.replace(project.id, '')
+               }
+           };
+
             return res.send(project);
         });
     },
@@ -72,7 +89,7 @@ module.exports = {
     },
 
     update: (req, res) => {
-        let valid = true;
+        var valid = true;
         for(let field in ProjectSchema){
             if(ProjectSchema[field].required){
                 if(!req.body.hasOwnProperty(field)){
@@ -99,7 +116,7 @@ module.exports = {
             project.save((err, updatedProject) => {
                 if(err){
                     console.error(err);
-                    return res.status(500).send(err);
+                    return res.status(400).send(err);
                 }
 
                 return res.send(updatedProject);
@@ -108,7 +125,7 @@ module.exports = {
     },
 
     delete: (req, res) => {
-        Project.findById(req.params.id, (err, project) => {
+        Project.find({ _id: req.params.id }, (err, project) => {
             if(err){
                 return res.status(500).send(err);
             }
@@ -118,7 +135,7 @@ module.exports = {
                 return res.status(404).send({'error': 'project not found'});
             }
 
-            Project.remove(req.params.id, (err) => {
+            Project.remove({ _id: req.params.id}, (err) => {
                 return err ? res.status(500).send(err) : res.status(204).send();
             })
         });
