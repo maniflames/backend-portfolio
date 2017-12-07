@@ -1,9 +1,20 @@
 //NOTE: if I ever have some time left some of these can be transformed into recursive functions
 module.exports = {
+        //NOTE: Ik krijg deze niet mooi omdat de logica net iets te complex is
         currentItems: (count, start, limit) => {
             const currentPage = module.exports.currentPage(start, limit);
             const lastPage = module.exports.numberOfPages(count, limit);
-            return !limit ? count : currentPage === lastPage ? count % limit == 0 ? limit : limit;
+            if(!limit){
+                return count;
+            } else if (currentPage === lastPage) {
+                if(count % limit == 0){
+                    return limit;
+                } else {
+                    return count % limit;
+                }
+            } else {
+                return limit;
+            }
         },
 
         numberOfPages: (count, limit) => {

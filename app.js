@@ -11,7 +11,7 @@ const routes = require('./routes');
 
 app.use(bodyparser.json({type: 'application/json'}));
 app.use(bodyparser.urlencoded({extended: false}));
-//NOTE: Funnction below should be a seperate function in a routing module
+//NOTE: Funnctions below should be seperate functions in a routing module
 app.use((req, res, next) => {
      req.get('Accept').indexOf('application/json') < 0 ? res.status(400).send({error: 'Accept header not supported'}) : next();
 });
@@ -58,20 +58,25 @@ app.options('*', (req, res) => {
     const filteredRoutes = routes.filter((route) => {
 
         let testRoute = route.path;
-        if(req.originalUrl.length > 1 && req.originalUrl.slice(req.originalUrl.length - 1) === '/' ){
+        let queriedRoute = req.originalUrl;
+
+        if(queriedRoute.length > 1 && queriedRoute.slice(queriedRoute.length - 1) === '/' ){
             testRoute = testRoute + '/';
         }
 
-        //TODO:
-        //check if the testRoute contains a param in the route
-            //If it is the case replace it with a regular expression thay may contain anything but whitespace
-        //Compare te originalUrl and the testRoute
-        //Remove the comparison method below
+        if(queriedRoute.indexOf('?') > 0){
+            let query = queriedRoute.slice(queriedRoute.indexOf('?'), queriedRoute.length);
+            queriedRoute = queriedRoute.replace(query, '');
+        }
 
-        //TODO:
-        //Ignore query in route
+        //NOTE: this only works for my specific case to be honest
+        if(testRoute.indexOf(':id') > 0){
+            testRoute = testRoute.replace(':id', '.+');
+            testRoute = new RegExp(testRoute);
+            return testRoute.test(queriedRoute);
+        }
 
-        return req.originalUrl === testRoute ? true : false;
+        return queriedRoute === testRoute ? true : false;
     });
 
     if(filteredRoutes.length === 0){
