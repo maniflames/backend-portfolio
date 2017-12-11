@@ -1,10 +1,8 @@
-//NOTE: Controllers aren't lean I should probably move some logic to models or helpers
 //NOTE: Creating an errorhandler would be effcient
-//NOTE: Creating a links module would be more effcient
 const models = require('../Models');
 const Project = models.Project;
 const ProjectSchema = Project.schema.tree;
-const pagination = require('../pagination');
+const pagination = require('../lib/pagination');
 
 module.exports = {
     list: (req, res) => {
@@ -18,8 +16,6 @@ module.exports = {
                 return res.status(500).send({error: err});
             }
 
-            //TODO: check if start is out of bounds
-
             Project.find({}).select('_id name description img_url _links').skip(start).limit(limit).exec((err, projects) => {
                 if(err){
                     console.error(err);
@@ -27,25 +23,16 @@ module.exports = {
                 }
 
                 let result = projects.map(function (project){
-                     project._links = {
-                        self: {
-                            href: req.protocol + '://' + req.get('host') + req.path + project.id
-                        },
-                        collection: {
-                            href: req.protocol + '://' + req.get('host') + req.path
-                        }
-                    };
-
+                    project._links = module.exports.getBothLinks(req, project.id);
                     return project;
                 });
 
-                response.items = result;
-                response._links = {
-                    self: {
-                        href: req.protocol + '://' + req.get('host') + req.path
-                    }
+                const response = {
+                    items: result,
+                    _links: { self: module.exports.getCollectionLink(req) },
+                    pagination: pagination.getPagination(count, start, limit, req.protocol + '://' + req.get('host') + req.path)
                 }
-                response.pagination = pagination.getPagination(count, start, limit, req.protocol + '://' + req.get('host') + req.path);
+
                 return res.send(response);
 
             })
@@ -63,18 +50,9 @@ module.exports = {
                 return res.status(404).send({error: 'project not found'});
             }
 
-            const path = req.path;
-
-            project._links = {
-               self: {
-                   href: req.protocol + '://' + req.get('host') + path
-               },
-               collection: {
-                   href: req.protocol + '://' + req.get('host') + path.replace(project.id, '')
-               }
-           };
-
+            project._links = module.exports.getBothLinks(req, req.params.id)
             return res.send(project);
+
         });
     },
 
@@ -89,20 +67,6 @@ module.exports = {
     },
 
     update: (req, res) => {
-        var valid = true;
-        for(let field in ProjectSchema){
-            if(ProjectSchema[field].required){
-                if(!req.body.hasOwnProperty(field)){
-                    valid = false;
-                }
-            }
-        }
-
-        if(!valid){
-            //TODO: make sure the message send has the same pattern as validation error
-            return res.status(400).send({'error': 'not all required fields are send'});
-        }
-
         Project.findById(req.params.id, (err, project) => {
             if(err){
                 console.error(err);
@@ -140,5 +104,20 @@ module.exports = {
             })
         });
 
+    },
+
+    getDetailLink: (req, id = '') => {
+        return { href: req.protocol + '://' + req.get('host') + req.path + id }
+    },
+
+    getCollectionLink: (req, id = '') => {
+        return { href: req.protocol + '://' + req.get('host') + req.path.replace(id, '')}
+    },
+
+    getBothLinks:(req, id = '') => {
+        return ({
+            self: module.exports.getDetailLink(req, id),
+            collection: module.exports.getCollectionLink(req, id)
+        })
     }
 }
