@@ -50,6 +50,8 @@ module.exports = {
                 return res.status(404).send({error: 'project not found'});
             }
 
+            console.log(req.path);
+
             project._links = module.exports.getBothLinks(req, req.params.id)
             return res.send(project);
 
@@ -107,6 +109,9 @@ module.exports = {
     },
 
     getDetailLink: (req, id = '') => {
+        if(req.path.indexOf(id) > 0){
+            id = '';
+        }
         return { href: req.protocol + '://' + req.get('host') + req.path + id }
     },
 
