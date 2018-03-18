@@ -2,3 +2,4 @@
 node_modules
 alternative.json
 .env
+.DS_Store
